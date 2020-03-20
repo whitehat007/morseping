@@ -1,0 +1,42 @@
+#!/bin/sh
+
+function usage() {
+    echo sosping 0.1.0 \(c\) 2018 by Matt Conz
+    echo
+    echo Syntax: `basename $0` HOST
+    echo
+    echo Continually sends an 'SOS' message via ping\(8\) to the specified host/target.
+    echo
+}
+
+if [ $# -ne 1 ]; then
+    usage
+    exit 1
+fi
+
+host="$1"
+dot_time="0.25"
+dash_time="0.5"
+function dot() {
+    sleep $dot_time
+    ping -c 1 -q -p 0 "$host" > /dev/null
+    echo "•\c"
+    printf '\a'
+}
+
+function dash() {
+    sleep $dash_time
+    ping -c 1 -q -p ff "$host" > /dev/null
+    echo "–\c"
+    printf '\a'
+    sleep $dash_time
+}
+
+
+echo "Sending SOS to $host..."
+
+while :; do
+    dot; dot; dot; echo "/\c"; dash; dash; dash; echo "/\c"; dot; dot; dot;
+    echo "//\c"
+    sleep 1
+done
